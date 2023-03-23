@@ -11,7 +11,7 @@ library(scales)
 source("weightedPickerInput.R")
 
 css <- sass(sass_file("www/css/styles.scss"))
-# Define UI for application that draws a histogram
+
 ui <- fluidPage(
   theme = bs_theme(5),
   tags$head(tags$style(css)),
@@ -23,12 +23,12 @@ ui <- fluidPage(
     c("mpg", "disp", "hp", "drat", "wt", "qsec"),
     selected = NULL
   ),
-  verbatimTextOutput("result", ),
+  verbatimTextOutput("result"),
   tableOutput("table")
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
+  # allow user to smoothly set needed values
   values_weights <- reactive(input$`car_options-stats_weights`) |>
     debounce(1000)
 
@@ -43,9 +43,12 @@ server <- function(input, output) {
     req(length(values_weights()$weights) > 0)
     stats <- values_weights()$weights
 
+    # get names of stats
     stats_names <- names(stats)
+    # get_weights
     stats_weights <- as.numeric(stats)
 
+    # select 5 best cars based on user stats selection
     mtcars |>
       select(all_of(stats_names)) |>
       mutate(across(where(is.numeric), rescale)) |>
